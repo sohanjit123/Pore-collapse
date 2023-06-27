@@ -1,8 +1,8 @@
 clc,clear all,close all
 % Image directory (change this to segment others)
-imageDirectory = '/Users/sohanjitghosh/Desktop/OPTIMISATION/';
+imageDirectory = '/Users/sohanjitghosh/Desktop/OPTIMISATION/Templates/';
 
-imageName = '77.tif';
+imageName = '263.tif';
 
 
 %% Load tif image
@@ -19,15 +19,15 @@ end
 % disp(['Finished loading image ',imageName]);
 
 
-% %% Normal Marching Cubes
-% 
-% isovalue=0.05;
-% 
-% [faces,verts] = extractIsosurface(Img,isovalue);
-% % [faces,verts] = isosurface(Img,isovalue);
-% 
-% 
-% figure
+%% Normal Marching Cubes
+
+isovalue=0.05;
+
+[faces,verts] = extractIsosurface(Img,isovalue);
+% [faces,verts] = isosurface(Img,isovalue);
+
+
+% figure(1)
 % p = patch(Faces=faces,Vertices=verts);
 % isonormals(Img,p)
 % view(3)
@@ -40,6 +40,8 @@ end
 
 Img(Img>0)=1;
 
+Img_org=Img;
+
 Img=smooth3(Img,'gaussian',5);
 
 s = regionprops3(Img,"all");
@@ -49,15 +51,18 @@ isovalue=0.05;
 [faces,verts] = extractIsosurface(Img,isovalue);
 % [faces,verts] = isosurface(Img,isovalue);
 
-% figure(1)
- p = patch(Faces=faces,Vertices=verts);
-isonormals(Img,p)
-view(3)
-set(p,FaceColor=[0.5 0.5 0.5])
-% set(p,FaceAlpha=0.1)
-set(p,EdgeColor="none")
-camlight
-lighting flat
+%  figure(2)
+   p = patch(Faces=faces,Vertices=verts);
+% isonormals(Img,p)
+% view(3)
+% set(p,FaceColor=[0.5 0.5 0.5])
+% % set(p,FaceAlpha=0.1)
+% set(p,EdgeColor="none")
+% camlight
+% lighting flat
+set(p,Visible="off")
+h1 = figure(1);
+set(h1, 'Visible', 'off');
 
 x=double(verts(:,1));
 y=double(verts(:,2));
@@ -83,15 +88,15 @@ FI=c/b;
 
 N=1500;
 
-figure(2)
+figure(3)
 S_v=reducepatch(p,N+1);
 
 P1=patch('Faces',S_v.faces,'Vertices',S_v.vertices);
 
 view(3)
 set(P1,FaceColor=[0.5 0.5 0.5])
-set(P1,EdgeColor="none")
-set(P1,FaceAlpha=0.1)
+% set(P1,EdgeColor="none")
+set(P1,FaceAlpha=0.3)
 camlight
 lighting flat
 
@@ -104,10 +109,12 @@ lighting flat
   %   plot3([p1(:,1) p2(:,1)]',[p1(:,2) p2(:,2)]',[p1(:,3) p2(:,3)]','g-');
   %   axis equal; view(3) 
 
-  D=bwdist(~Img);
-  D=double(D);
+  D=bwdist(~Img_org,'euclidean');
+   D=double(D);
 
-  rad=  max(D,[],"all");
+  rad= max(D,[],"all");
+
+  count=0;
 
 for i=1:size(D,1)
     for j=1:size(D,2)
@@ -121,6 +128,8 @@ for i=1:size(D,1)
         end
     end
 end
+
+
 
 % [V,F]=icosphere(4);
 % 
@@ -164,7 +173,7 @@ Numelements=length(S_v.faces);
 
 num=0;den=0;
 
-for i=1:1
+for i=1:Numelements
 
 FP=S_v.vertices(S_v.faces(i,1),:);
 SP=S_v.vertices(S_v.faces(i,2),:);
@@ -179,9 +188,28 @@ s = (L1+L2+L3)/2;
 area = sqrt(s*(s-L1)*(s-L2)*(s-L3));
 
 
-LR=((F_m(S_v.faces(i,1))/K_m(S_v.faces(i,1)))+(F_m(S_v.faces(i,2))/K_m(S_v.faces(i,2)))...
-+(F_m(S_v.faces(i,3))/K_m(S_v.faces(i,3))))/3;
+% LR=((F_m(S_v.faces(i,1))/K_m(S_v.faces(i,1)))+(F_m(S_v.faces(i,2))/K_m(S_v.faces(i,2)))...
+% +(F_m(S_v.faces(i,3))/K_m(S_v.faces(i,3))))/3;
 
+% LR1=F_m(S_v.faces(i,1))/K_m(S_v.faces(i,1));
+% LR2=F_m(S_v.faces(i,2))/K_m(S_v.faces(i,2));
+% LR3=F_m(S_v.faces(i,3))/K_m(S_v.faces(i,3));
+
+LR1=K_m(S_v.faces(i,1))/F_m(S_v.faces(i,1));
+LR2=K_m(S_v.faces(i,2))/F_m(S_v.faces(i,2));
+LR3=K_m(S_v.faces(i,3))/F_m(S_v.faces(i,3));
+
+
+% LR1=F_G(S_v.faces(i,1))/K_G(S_v.faces(i,1));
+% LR2=F_G(S_v.faces(i,2))/K_G(S_v.faces(i,2));
+% LR3=F_G(S_v.faces(i,3))/K_G(S_v.faces(i,3));
+
+% LR1=K_G(S_v.faces(i,1))/F_G(S_v.faces(i,1));
+% LR2=K_G(S_v.faces(i,2))/F_G(S_v.faces(i,2));
+% LR3=K_G(S_v.faces(i,3))/F_G(S_v.faces(i,3));
+
+
+LR=(LR1+LR2+LR3)/3;
 
 num=num+area*LR;
 
@@ -189,3 +217,11 @@ den=den+area;
 end
 
 R_M=num/den;
+
+fprintf("Mean curvature R_m %f\n", R_M)
+fprintf("Elongation Index %f\n", EI)
+fprintf("Flatness Index %f\n", FI)
+fprintf("Aspect Ratio %f\n", 0.5*(EI+FI))
+fprintf("Sphericity %f\n", S)
+fprintf("Convexity %f\n", C_x)
+
