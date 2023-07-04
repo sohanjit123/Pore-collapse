@@ -1,10 +1,11 @@
+tic
 clc,clear all
 
 % Zhao_4 SHPSG function
 
 EI = 1; % elongation index
 FI = 1; % flatness index
-D2_8 = 0;
+D2_8 = 0.4;
 D9_15 = 0;
 
 coeff = SHPSG(EI,FI,D2_8,D9_15);
@@ -36,7 +37,7 @@ x(hello)=XYZ(1);
 y(hello)=XYZ(2);
 z(hello)=XYZ(3);
 
-hello=hello+1
+hello=hello+1;
 
     end
 end
@@ -53,8 +54,11 @@ z=real(z);
 
 [k1,av1] = convhull(x,y,z);
 
-trisurf(k1,x,y,z,'FaceColor','cyan','FaceAlpha',0.1)
+trisurf(k1,x,y,z,'FaceColor','black','FaceAlpha',0.3,'EdgeColor','none')
 axis equal
+light
+
+toc
 
 function [fvec] = SHPSG(EI,FI,D2_8,D9_15)
 
@@ -140,3 +144,4 @@ function [fvec] = SHPSG(EI,FI,D2_8,D9_15)
         end
     end
 end
+
